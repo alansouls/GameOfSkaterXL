@@ -1,0 +1,10 @@
+{
+  "Id": "GameOfSkaterXL",
+  "DisplayName": "GameOfSkaterXL",
+  "Author": "alansouls",
+  "Version": "0.0.1",
+  "ManagerVersion": "0.22.13",
+  "AssemblyName": "GameOfSkaterXL.dll",
+  "EntryMethod": "GameOfSkaterXL.Main.Load",
+  "Repository":  "https://github.com/alansouls/gameofskaterxl"
+}

@@ -30,6 +30,8 @@ namespace GameOfSkaterXL
             var currentTrickY = 25;
             var currentTrickOfssetY = 25;
             int currentTrickX = Screen.width / 2;
+            GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Press F6 to pass turn to next player (also unsets current trick)");
+            currentTrickY += currentTrickOfssetY;
             if (!Main.GameOfSkateManagerInstance.IsSettingTrick && !Main.GameOfSkateManagerInstance.IsCopyingTrick)
             {
                 GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Press F1 to set or copy a trick");
@@ -37,6 +39,8 @@ namespace GameOfSkaterXL
             }
             if (Main.GameOfSkateManagerInstance.IsTrickSet)
             {
+                GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Press F5 to unset the current trick");
+                currentTrickY += currentTrickOfssetY;
                 GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), $"Current Trick: {Main.GameOfSkateManagerInstance.CurrentTrick}");
                 currentTrickY += currentTrickOfssetY;
             }
@@ -48,6 +52,11 @@ namespace GameOfSkaterXL
             if (Main.GameOfSkateManagerInstance.IsCopyingTrick)
             {
                 GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Waiting for trick to be copied");
+                currentTrickY += currentTrickOfssetY;
+            }
+            if (Main.GameOfSkateManagerInstance.WasTrickRepeated)
+            {
+                GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Couldn't set repeated trick");
                 currentTrickY += currentTrickOfssetY;
             }
         }
@@ -93,14 +102,16 @@ namespace GameOfSkaterXL
             var canSet = !GameOfSkateManagerInstance.IsSettingTrick && !GameOfSkateManagerInstance.IsCopyingTrick;
             if (Input.GetKeyDown(KeyCode.F1) && canSet)
             {
-                if (GameOfSkateManagerInstance.IsTrickSet)
-                {
-                    GameOfSkateManagerInstance.IsCopyingTrick = true;
-                }
-                else
-                {
-                    GameOfSkateManagerInstance.IsSettingTrick = true;
-                }
+                GameOfSkateManagerInstance.PrepareSetOrCopyTrick();
+            }
+            else if (Input.GetKeyDown(KeyCode.F5))
+            {
+                GameOfSkateManagerInstance.UnsetCurrentTrick();
+            }
+            else if (Input.GetKeyDown(KeyCode.F6))
+            {
+                GameOfSkateManagerInstance.UnsetCurrentTrick();
+                GameOfSkateManagerInstance.NextPlayer();
             }
         }
 
@@ -108,37 +119,12 @@ namespace GameOfSkaterXL
         {
             if (GameOfSkateManagerInstance.IsCopyingTrick)
             {
-                //TODO Implement UI feedback for copying tricks
-                GameOfSkateManagerInstance.IsCopyingTrick = false;
-                GameOfSkateManagerInstance.IsTrickSet = false;
-                var copiedTrick = string.Join(" ", trickCombo.Tricks.Select(s => s.ToString()));
-                if (copiedTrick == GameOfSkateManagerInstance.CurrentTrick && trickCombo.Landed)
-                {
-                    GameOfSkateManagerInstance.IsTrickCopied = true;
-                }
-                else
-                {
-                    GameOfSkateManagerInstance.PlayerLetters[GameOfSkateManagerInstance.CurrentPlayerTurn] += 1;
-                    if (GameOfSkateManagerInstance.PlayerLetters[GameOfSkateManagerInstance.CurrentPlayerTurn] > GameOfSkateManagerInstance.GameWord.Length)
-                    {
-                        GameOfSkateManagerInstance = new GameOfSkateManager();
-                        return;
-                    }
-                    GameOfSkateManagerInstance.IsTrickCopied = false;
-                }
-                GameOfSkateManagerInstance.CurrentTrick = "";
-                GameOfSkateManagerInstance.NextPlayer();
+                if (GameOfSkateManagerInstance.VerifiyTrickCopied(trickCombo))
+                    GameOfSkateManagerInstance = new GameOfSkateManager();
             }
             else if (GameOfSkateManagerInstance.IsSettingTrick)
             {
-                //TODO Implement UI feedback for setting tricks
-                GameOfSkateManagerInstance.IsSettingTrick = false;
-                if (trickCombo.Landed)
-                {
-                    GameOfSkateManagerInstance.IsTrickSet = true;
-                    GameOfSkateManagerInstance.CurrentTrick = string.Join(" ", trickCombo.Tricks.Select(s => s.ToString()));
-                }
-                GameOfSkateManagerInstance.NextPlayer();
+                GameOfSkateManagerInstance.VerifyTrickSet(trickCombo);
             }
         }
     }

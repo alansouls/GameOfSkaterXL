@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameOfSkaterXL
 {
@@ -23,8 +24,13 @@ namespace GameOfSkaterXL
 
         public bool IsTrickCopied;
 
+        public List<string> TricksDone;
+
+        public bool WasTrickRepeated;
+
         public GameOfSkateManager()
         {
+            WasTrickRepeated = false;
             IsTrickSet = false;
             CurrentTrick = "";
             IsSettingTrick = false;
@@ -36,12 +42,76 @@ namespace GameOfSkaterXL
             CurrentPlayerTurn = 0;
             IsTrickCopied = false;
             GameWord = "SKATE";
+            TricksDone = new List<string>();
+        }
+
+        /// <summary>
+        /// Returns if game is ended
+        /// </summary>
+        /// <param name="trickCombo"></param>
+        /// <returns></returns>
+        public bool VerifiyTrickCopied(TrickCombo trickCombo)
+        {
+            IsCopyingTrick = false;
+            IsTrickSet = false;
+            var copiedTrick = string.Join(" ", trickCombo.Tricks.Select(s => s.ToString()));
+            if (copiedTrick == CurrentTrick && trickCombo.Landed)
+            {
+                IsTrickCopied = true;
+            }
+            else
+            {
+                PlayerLetters[CurrentPlayerTurn] += 1;
+                if (PlayerLetters[CurrentPlayerTurn] >= GameWord.Length)
+                    return true;
+                IsTrickCopied = false;
+            }
+            CurrentTrick = "";
+            NextPlayer();
+            return false;
+        }
+
+        public void VerifyTrickSet(TrickCombo trickCombo)
+        {
+            IsSettingTrick = false;
+            var trickName = string.Join(" ", trickCombo.Tricks.Select(s => s.ToString()));
+            var wasTrickRepeated = TricksDone.Contains(trickName);
+            if (trickCombo.Landed && !wasTrickRepeated)
+            {
+                IsTrickSet = true;
+                CurrentTrick = trickName;
+                TricksDone.Add(CurrentTrick);
+            }
+            WasTrickRepeated = wasTrickRepeated && trickCombo.Landed;
+            NextPlayer();
         }
 
         public void NextPlayer()
         {
             var nextPlayer = CurrentPlayerTurn + 1;
             CurrentPlayerTurn = nextPlayer >= PlayerCount ? 0 : nextPlayer;
+        }
+
+        public void UnsetCurrentTrick()
+        {
+            if (!IsTrickSet)
+                return;
+            IsTrickSet = false;
+            IsSettingTrick = false;
+            IsCopyingTrick = false;
+        }
+
+        public void PrepareSetOrCopyTrick()
+        {
+            if (IsTrickSet)
+            {
+                WasTrickRepeated = false;
+                IsCopyingTrick = true;
+            }
+            else
+            {
+                IsSettingTrick = true;
+            }
         }
     }
 }

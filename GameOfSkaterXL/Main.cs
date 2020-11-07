@@ -74,7 +74,7 @@ namespace GameOfSkaterXL
             modEntry.OnUpdate = OnUpdate;
         }
 
-        static bool OnToggle(UnityModManager.ModEntry modEntry, bool value /* active or inactive */)
+        static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
             if (value && GameOfSkateManagerInstance == null)
             {
@@ -99,8 +99,7 @@ namespace GameOfSkaterXL
             if (GameOfSkateManagerInstance == null)
                 return;
 
-            var canSet = !GameOfSkateManagerInstance.IsSettingTrick && !GameOfSkateManagerInstance.IsCopyingTrick;
-            if (Input.GetKeyDown(KeyCode.F1) && canSet)
+            if (Input.GetKeyDown(KeyCode.F1))
             {
                 GameOfSkateManagerInstance.PrepareSetOrCopyTrick();
             }
@@ -118,14 +117,9 @@ namespace GameOfSkaterXL
         static void OnComboEnded(TrickCombo trickCombo)
         {
             if (GameOfSkateManagerInstance.IsCopyingTrick)
-            {
-                if (GameOfSkateManagerInstance.VerifiyTrickCopied(trickCombo))
-                    GameOfSkateManagerInstance = new GameOfSkateManager();
-            }
+                GameOfSkateManagerInstance.VerifiyTrickCopied(trickCombo);
             else if (GameOfSkateManagerInstance.IsSettingTrick)
-            {
                 GameOfSkateManagerInstance.VerifyTrickSet(trickCombo);
-            }
         }
     }
 }

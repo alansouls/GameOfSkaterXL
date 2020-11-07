@@ -30,15 +30,20 @@ namespace GameOfSkaterXL
 
         public GameOfSkateManager()
         {
+            Reset();
+        }
+
+        public void Reset()
+        {
             WasTrickRepeated = false;
             IsTrickSet = false;
             CurrentTrick = "";
             IsSettingTrick = false;
             IsCopyingTrick = false;
             PlayerLetters = new int[2];
-            PlayerLetters[0] = 0;
-            PlayerLetters[1] = 0;
             PlayerCount = 2;
+            for (int i = 0; i < PlayerCount; ++i)
+                PlayerLetters[i] = 0;
             CurrentPlayerTurn = 0;
             IsTrickCopied = false;
             GameWord = "SKATE";
@@ -50,7 +55,7 @@ namespace GameOfSkaterXL
         /// </summary>
         /// <param name="trickCombo"></param>
         /// <returns></returns>
-        public bool VerifiyTrickCopied(TrickCombo trickCombo)
+        public void VerifiyTrickCopied(TrickCombo trickCombo)
         {
             IsCopyingTrick = false;
             IsTrickSet = false;
@@ -63,12 +68,14 @@ namespace GameOfSkaterXL
             {
                 PlayerLetters[CurrentPlayerTurn] += 1;
                 if (PlayerLetters[CurrentPlayerTurn] >= GameWord.Length)
-                    return true;
+                {
+                    Reset();
+                    return;
+                }
                 IsTrickCopied = false;
             }
             CurrentTrick = "";
             NextPlayer();
-            return false;
         }
 
         public void VerifyTrickSet(TrickCombo trickCombo)
@@ -99,10 +106,13 @@ namespace GameOfSkaterXL
             IsTrickSet = false;
             IsSettingTrick = false;
             IsCopyingTrick = false;
+            TricksDone.RemoveAt(TricksDone.Count - 1);
         }
 
         public void PrepareSetOrCopyTrick()
         {
+            if (IsSettingTrick || IsCopyingTrick)
+                return;
             if (IsTrickSet)
             {
                 WasTrickRepeated = false;

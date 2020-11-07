@@ -53,6 +53,11 @@ namespace GameOfSkaterXL
             {
                 GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Waiting for trick to be copied");
                 currentTrickY += currentTrickOfssetY;
+                if (Main.GameOfSkateManagerInstance.IsLastChance)
+                {
+                    GUI.Label(new Rect(currentTrickX, currentTrickY, maxPhraseWidht, 30), "Last chance to land current trick!");
+                    currentTrickY += currentTrickOfssetY;
+                }
             }
             if (Main.GameOfSkateManagerInstance.WasTrickRepeated)
             {

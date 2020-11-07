@@ -28,6 +28,8 @@ namespace GameOfSkaterXL
 
         public bool WasTrickRepeated;
 
+        public bool IsLastChance;
+
         public GameOfSkateManager()
         {
             Reset();
@@ -35,6 +37,7 @@ namespace GameOfSkaterXL
 
         public void Reset()
         {
+            IsLastChance = false;
             WasTrickRepeated = false;
             IsTrickSet = false;
             CurrentTrick = "";
@@ -67,9 +70,16 @@ namespace GameOfSkaterXL
             else
             {
                 PlayerLetters[CurrentPlayerTurn] += 1;
-                if (PlayerLetters[CurrentPlayerTurn] >= GameWord.Length)
+                if (PlayerLetters[CurrentPlayerTurn] >= GameWord.Length && IsLastChance)
                 {
                     Reset();
+                    return;
+                }
+                else if (PlayerLetters[CurrentPlayerTurn] >= GameWord.Length)
+                {
+                    IsTrickSet = true;
+                    PlayerLetters[CurrentPlayerTurn] -= 1;
+                    IsLastChance = true;
                     return;
                 }
                 IsTrickCopied = false;
